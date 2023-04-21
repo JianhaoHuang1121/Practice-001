@@ -1,0 +1,70 @@
+import random
+import time
+
+def linear_search(S, x):
+    for i in range(len(S)):
+        if S[i] == x:
+            return True
+    return False
+
+def binary_search(S, x):
+    low, high = 0, len(S) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if S[mid] == x:
+            return True
+        elif S[mid] < x:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return False
+
+def fibonacci_search(S, x):
+    def fib(n):
+        if n <= 1:
+            return n
+        return fib(n-1) + fib(n-2)
+
+    n = len(S)
+    fib1, fib2 = 0, 1
+    while fib2 < n:
+        fib1, fib2 = fib2, fib1 + fib2
+    offset = -1
+    while fib2 > 1:
+        i = min(offset + fib1, n-1)
+        if S[i] < x:
+            fib2, fib1 = fib1, fib2 - fib1
+            offset = i
+        elif S[i] > x:
+            fib2 = fib2 - fib1
+            fib1 = fib1 - fib2
+        else:
+            return True
+    if fib1 and S[offset+1] == x:
+        return True
+    return False
+
+def run_experiment(n):
+    S = [random.randint(1, 100000) for _ in range(n)]
+    x = random.randint(1, 100000)
+    linear_search_time = 0
+    binary_search_time = 0
+    fibonacci_search_time = 0
+    for _ in range(5):
+        start = time.time()
+        linear_search(S, x)
+        linear_search_time += time.time() - start
+
+        start = time.time()
+        binary_search(sorted(S), x)
+        binary_search_time += time.time() - start
+
+        start = time.time()
+        fibonacci_search(sorted(S), x)
+        fibonacci_search_time += time.time() - start
+
+    return (linear_search_time/5, binary_search_time/5, fibonacci_search_time/5)
+
+for n in range(10, 1010, 10):
+    results = run_experiment(n)
+    print(f"{n}\t{results[0]:.6f}\t{results[1]:.6f}\t{results[2]:.6f}")
